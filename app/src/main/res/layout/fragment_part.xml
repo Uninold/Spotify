@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/fragment"
+    android:layout_width="match_parent"
+    android:layout_height="85dp"
+    android:layout_gravity="bottom"
+    android:layout_marginBottom="50dp"
+    android:background="@color/toolbarColor"
+    android:orientation="horizontal"
+    android:padding="20dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/up_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0"
+        android:src="@drawable/arrow_up_icon"
+        android:tint="@color/White" />
+
+    <TextView
+        android:id="@+id/songTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:gravity="end"
+        android:text="@string/song_title"
+        android:textColor="@color/White"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/buffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0"
+        android:gravity="start"
+        android:text=" • "
+        android:textColor="@color/White" />
+
+    <TextView
+        android:id="@+id/songSinger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:gravity="start"
+        android:text="@string/artist"
+        android:textColor="@color/White" />
+
+    <ImageView
+        android:id="@+id/play_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0"
+        android:src="@drawable/play_icon"
+        android:tint="@color/White" />
+</LinearLayout>

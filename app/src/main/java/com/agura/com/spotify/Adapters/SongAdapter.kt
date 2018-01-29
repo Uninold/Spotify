@@ -2,27 +2,29 @@ package com.agura.com.spotify.Adapters
 
 
 import android.support.v7.widget.RecyclerView
-import com.agura.com.spotify.Model.SongList
+import com.agura.com.spotify.Interface.SongList
 import com.agura.com.spotify.R
-import android.widget.TextView
-import org.w3c.dom.Text
-import android.R.menu
-import android.annotation.SuppressLint
+import android.app.Fragment
+import android.content.Context
+import android.app.FragmentManager
 import android.graphics.Color
 import android.view.*
-import android.view.ContextMenu.ContextMenuInfo
-import android.widget.FrameLayout
-import android.widget.LinearLayout
+import android.widget.*
+import com.agura.com.spotify.Controller.MainActivity
 import com.agura.com.spotify.Fragment.SongFragment
-
+import com.agura.com.spotify.Service.PlaySongService
+import android.content.Intent
 
 /**
  * Created by SmartStart on 12/17/17.
  */
-class SongAdapter(val songList: ArrayList<SongList>): RecyclerView.Adapter<SongAdapter.ViewHolder>(){
-
+class SongAdapter(val songList: ArrayList<SongList>,val context: Context, val ma:MainActivity): RecyclerView.Adapter<SongAdapter.ViewHolder>(){
+    val currentSong:Int = 0
+    var mContext = context
+    val allSongs:ArrayList<String>  =  ArrayList()
     companion object {
-        val KEY_RECIPE = "111"
+        val SONGLIST = "songlist"
+        val SONGPOS = "songpos"
     }
     var isClicked = true
 
@@ -43,28 +45,53 @@ class SongAdapter(val songList: ArrayList<SongList>): RecyclerView.Adapter<SongA
         return ViewHolder(v)
     }
 
+    override fun getItemId(position: Int): Long {
+        return super.getItemId(position)
+    }
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
         val song: SongList = songList[position]
         holder?.txtSongTitle?.text = song.song_title
         holder?.txtSongArtist?.text = song.song_artist
         holder?.txtSongAlbum?.text = song.song_album
-        holder?.mLinear?.setOnClickListener(object: View.OnClickListener{
-            @SuppressLint("ResourceAsColor")
-            override fun onClick(v: View) {
-                if (!song.stat) {
-                    holder?.txtSongTitle.setTextColor(Color.parseColor("#1DB954"));
-                    song.stat!=true
-                }
-                if(song.stat){
-                    holder?.txtSongTitle.setTextColor(Color.parseColor("#fffff"));
-                    song.stat!=false
-                }
-            }
-            })
+        if(song.stat==1)
+        {
+            holder?.txtSongTitle?.setTextColor(Color.parseColor("#1DB954"));
+        }
 
+        holder?.mLinear?.setOnClickListener(object : View.OnClickListener {
+
+            override fun onClick(v: View) {
+//             ma.setSelectedSong(position)
+
+                for (i in 0 until songList.size) {
+                    allSongs.add(songList[i].song_path)
+                }
+
+                try {
+                    val fragment = SongFragment.newInstance(song.song_title, song.song_artist)
+                    ma.supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragment_play, fragment)
+                            .commit()
+                } catch (e: Exception) {
+                    Toast.makeText(ma, "Error!", Toast.LENGTH_SHORT)
+                }
+
+                var songIntent = Intent(mContext, PlaySongService::class.java)
+                songIntent.putStringArrayListExtra(SONGLIST, allSongs)
+                songIntent.putExtra(SONGPOS, position)
+                mContext.startService(songIntent)
+            }
+
+        })
 
     }
+    fun addFragmentToActivity(manager: FragmentManager, fragment: Fragment, frameId: Int) {
 
+        val transaction = manager.beginTransaction()
+        transaction.add(frameId, fragment)
+        transaction.commit()
 
+    }
 
 }

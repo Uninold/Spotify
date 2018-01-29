@@ -18,6 +18,7 @@
            android:layout_height="wrap_content"
            android:textColor="@color/White"
            android:textSize="18sp"
+           android:fontFamily="@font/montserrat_light"
            android:text="Title"
            android:paddingTop="25px"
            android:paddingLeft="25px"/>
@@ -32,18 +33,21 @@
                android:layout_height="wrap_content"
                android:textColor="@color/Gray"
                android:text="Song Artist"
+               android:fontFamily="@font/montserrat_light"
                android:paddingTop="10px"
                android:paddingLeft="25px"/>
            <TextView
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:textColor="@color/Gray"
+               android:fontFamily="@font/montserrat_light"
                android:text=" • "/>
            <TextView
                android:id="@+id/txtsong_album"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:textColor="@color/Gray"
+               android:fontFamily="@font/montserrat_light"
                android:text="Song Album"/>
 
        </LinearLayout>

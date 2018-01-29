@@ -1,7 +1,8 @@
 package com.agura.com.spotify.Controller
 
 import android.annotation.SuppressLint
-import android.app.Fragment
+
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -14,22 +15,26 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.View
-import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.agura.com.spotify.Adapters.SongAdapter
-import com.agura.com.spotify.Model.SongList
+import com.agura.com.spotify.Interface.SongList
 import com.agura.com.spotify.R
 import kotlinx.android.synthetic.main.activity_main.*
-import android.support.design.internal.BottomNavigationItemView
-import android.support.design.internal.BottomNavigationMenuView
 import android.support.design.widget.BottomNavigationView
-import android.util.Log
-
+import android.database.Cursor
+import android.provider.MediaStore
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
     private var mRecyclerView: RecyclerView? = null
     private var mNestedScrollView: NestedScrollView? = null
+    private var currentsong = -1;
+    private var songList = ArrayList<SongList>()
+    companion object {
+        val PERMISSION_REQUEST_CODE  = 111
+    }
+
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +44,14 @@ class MainActivity : AppCompatActivity() {
         initCollapsingToolbar()
         findView()
 
+        if(ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this@MainActivity,
+                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
+        }
+        else
+        {
+            loadSongs()
+        }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
@@ -50,105 +63,24 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         BottomNavigationHelper.disableShiftMode(bottomNavigationView)
 
-        mRecyclerView!!.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
-
-        val songList = ArrayList<SongList>()
-        songList.add(SongList(
-                "Titibo-Tibo",
-                "Moira Dela Torre",
-                "Himig Handog 2017",
-                false
-        ))
-        songList.add(SongList(
-                "Havana",
-                "Camila Cabello, Young Thug",
-                "Havana",
-                false
-
-        ))
-        songList.add(SongList(
-                "Young Dumb & Broke",
-                "Khalid",
-                "American Teen",
-                false
-        ))
-        songList.add(SongList(
-                "What Lovers Do (feat. SZA)",
-                "Maroon 5, SZA",
-                "Red Pill Blues(Deluxe)",
-                false
-        ))
-        songList.add(SongList(
-                "Perfect",
-                "Ed Sheeran",
-                "♠(Deluxe)",
-                false
-        ))
-        songList.add(SongList(
-                "Super Far",
-                "LANY",
-                "LANY",
-                false
-        ))
-        songList.add(SongList(
-                "Too Good at Goodbyes",
-                "Sam Smith",
-                "The Thrill of It All",
-                false
-        ))
-        songList.add(SongList(
-                "Titibo-Tibo",
-                "Moira Dela Torre",
-                "Himig Handog 2017",
-                false
-        ))
-        songList.add(SongList(
-                "Havana",
-                "Camila Cabello, Young Thug",
-                "Havana",
-                false
-        ))
-        songList.add(SongList(
-                "Young Dumb & Broke",
-                "Khalid",
-                "American Teen",
-                false
-        ))
-        songList.add(SongList(
-                "What Lovers Do (feat. SZA)",
-                "Maroon 5, SZA",
-                "Red Pill Blues(Deluxe)",
-                false
-        ))
-        songList.add(SongList(
-                "Perfect",
-                "Ed Sheeran",
-                "♠(Deluxe)",
-                false
-        ))
-        songList.add(SongList(
-                "Super Far",
-                "LANY",
-                "LANY",
-                false
-        ))
-        songList.add(SongList(
-                "Too Good at Goodbyes",
-                "Sam Smith",
-                "The Thrill of It All",
-                false
-        ))
-        val adapter = SongAdapter(songList)
-
-        mRecyclerView!!.adapter = adapter
-
-        mRecyclerView!!.addItemDecoration(DividerItemDecoration(recyclerView.getContext(), LinearLayoutManager.VERTICAL))
-
 
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+    public fun setSelectedSong(pos: Int){
+        for(item in songList){
+            item.stat = 0
+        }
+        songList.get(pos).stat = 1
+
+        val adapter = SongAdapter(songList,applicationContext,this)
+
+        mRecyclerView!!.adapter = adapter
+
+
     }
 
     private fun initCollapsingToolbar() {
@@ -183,7 +115,47 @@ class MainActivity : AppCompatActivity() {
     fun findView() {
         mRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         mNestedScrollView = findViewById<NestedScrollView>(R.id.nestedScrollView)
+    }
 
+    fun loadSongs()
+    {
+        var songCursor:Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                null,null,null,null)
+        while (songCursor != null && songCursor.moveToNext())
+        {
+
+            var songName = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
+            var songArtist = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
+            var songAlbum = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
+            var songPath = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+            songList.add(SongList(
+                    songName,
+                    songArtist,
+                    songAlbum,
+                    songPath
+            ))
+        }
+
+        mRecyclerView!!.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+
+
+        val adapter = SongAdapter(songList,applicationContext,this)
+
+        mRecyclerView!!.adapter = adapter
+
+        mRecyclerView!!.addItemDecoration(DividerItemDecoration(recyclerView.getContext(), LinearLayoutManager.VERTICAL))
+
+
+
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if(requestCode == PERMISSION_REQUEST_CODE){
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                loadSongs()
+            }
+        }
     }
 
 

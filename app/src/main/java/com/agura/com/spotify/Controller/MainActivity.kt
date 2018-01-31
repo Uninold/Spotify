@@ -26,7 +26,7 @@ import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(){
     private var mRecyclerView: RecyclerView? = null
     private var mNestedScrollView: NestedScrollView? = null
     private var currentsong = -1;

@@ -19,12 +19,16 @@ import android.content.Intent
  * Created by SmartStart on 12/17/17.
  */
 class SongAdapter(val songList: ArrayList<SongList>,val context: Context, val ma:MainActivity): RecyclerView.Adapter<SongAdapter.ViewHolder>(){
-    val currentSong:Int = 0
+
+    var mRecyclerView: RecyclerView? = null
+    var currentSong:Int = 0
+    var view:View?  = null
     var mContext = context
     val allSongs:ArrayList<String>  =  ArrayList()
     companion object {
         val SONGLIST = "songlist"
         val SONGPOS = "songpos"
+        val SONGPLAY = "songplay"
     }
     var isClicked = true
 
@@ -55,7 +59,6 @@ class SongAdapter(val songList: ArrayList<SongList>,val context: Context, val ma
         holder?.txtSongAlbum?.text = song.song_album
         if(song.stat==1)
         {
-            holder?.txtSongTitle?.setTextColor(Color.parseColor("#1DB954"));
         }
 
         holder?.mLinear?.setOnClickListener(object : View.OnClickListener {
@@ -63,6 +66,9 @@ class SongAdapter(val songList: ArrayList<SongList>,val context: Context, val ma
             override fun onClick(v: View) {
 //             ma.setSelectedSong(position)
 
+                currentSong = position
+
+                holder?.txtSongTitle?.setTextColor(Color.parseColor("#1DB954"));
                 for (i in 0 until songList.size) {
                     allSongs.add(songList[i].song_path)
                 }
@@ -79,6 +85,7 @@ class SongAdapter(val songList: ArrayList<SongList>,val context: Context, val ma
 
                 var songIntent = Intent(mContext, PlaySongService::class.java)
                 songIntent.putStringArrayListExtra(SONGLIST, allSongs)
+                songIntent.setAction(SONGPLAY)
                 songIntent.putExtra(SONGPOS, position)
                 mContext.startService(songIntent)
             }
